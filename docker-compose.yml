@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  db:
+    restart: always
+    image: postgres
+    environment:
+      - POSTGRES_NAME=db
+      - POSTGRES_USER=dbuser
+      - POSTGRES_DB=nodeTest
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    networks:
+      - the_net
+  api:
+    image: erangoldman/node-api
+    ports:
+      - "8081:8080"
+    environment:
+      - PORT=8080
+      - DB=nodeTest
+      - DBUSER=dbuser
+      - DBPASS=1234
+      - DBHOST=db
+      - DBPORT=5432
+    networks:
+      - the_net
+    depends_on:
+      - db
+  web:
+    image: erangoldman/node-web
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - API_HOST=http://api:8080
+    networks:
+      - the_net
+    depends_on:
+      - api
+
+networks:
+  the_net:
